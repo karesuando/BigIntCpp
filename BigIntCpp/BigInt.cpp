@@ -172,29 +172,9 @@ void BigInt<Size>::Add(long Int)
 template <int Size>
 void BigInt<Size>::Sub(long Int)
 {
-	if (Int < 0)
-		Add(-Int);
-	else if (m_Digits[0] >= (unsigned short)(Int))
-		m_Digits[0] -= (unsigned short)Int;
-	else {
-		int i;
-		unsigned long Carry,Sum;
-		unsigned short *ThisDigit,Val;
-		
-		i          = 1;
-		ThisDigit  = m_Digits;
-		Val        = (~(unsigned short)(Int)) + 1;
-		Sum        = (unsigned long)(*ThisDigit) + Val;
-		Carry      = Sum >> NUMBITS_USHORT;
-		*ThisDigit = (unsigned short)(Sum);
-		while (i < Size) 
-		{
-			Sum        = Carry + *++ThisDigit + 0xffff;
-			*ThisDigit = (unsigned short)(Sum);
-			Carry      = Sum >> NUMBITS_USHORT;
-			i++;
-		}
-	}
+	BigInt<Size> tmp = Int;
+	tmp.TwosComplement();
+	Add(tmp);
 }
 
 template <int Size>

@@ -101,12 +101,12 @@ int main()
 	string CipherTxt;
 
 	BigInt<BUFFER_SIZE> q, r;
-	BigInt<BUFFER_SIZE> tmp = RSAModulus - 1234;
+	BigInt<BUFFER_SIZE> tmp = RSAModulus - 944105432;
 
 	BigInt<BUFFER_SIZE> PlainTextValue;
 
 	tmp.UDiv(PrimeP, q, r);
-	bool isSame = q * PrimeP + r + 1234 == RSAModulus;
+	bool isEqual = RSAModulus - tmp == 944105432;
 	if (Encrypt("Why the hell doesn't this work?", CipherTxt))
 	{
 		string PlainText;
