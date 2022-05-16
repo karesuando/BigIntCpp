@@ -172,9 +172,13 @@ void BigInt<Size>::Add(long Int)
 template <int Size>
 void BigInt<Size>::Sub(long Int)
 {
-	BigInt<Size> tmp = Int;
-	tmp.TwosComplement();
-	Add(tmp);
+	if (Int < 0)
+		Add(-Int);
+	else {
+		BigInt<Size> tmp = Int;
+		tmp.TwosComplement();
+		Add(tmp);
+	}
 }
 
 template <int Size>
