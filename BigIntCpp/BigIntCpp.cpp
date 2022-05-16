@@ -22,7 +22,7 @@ int* CreateCharPosArray(
 	const char Symbols[])
 {
 	long i;
-	unsigned char ch;
+	int ch;
 	const long Radix = strlen(Symbols);
 	static int Position[256] = { 0 };
 

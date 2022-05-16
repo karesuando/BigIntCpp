@@ -84,13 +84,12 @@ public:
 private:
 	friend istream& operator>> (istream& InStream, BigInt& Int);
 	friend ostream& operator<< (ostream& OutStream, const BigInt& Int);
-	friend void BigIntToString(BigInt Int,char[],size_t);
-	friend BigInt HexStringToCInt(const char Str[]);
+	friend string BigIntToString(BigInt Int);
 	friend bool XGCD(BigInt a,BigInt b,BigInt& x0,BigInt& y0);
 	friend BigInt HexStringToBigInt(const char Str[]);
 	friend BigInt Abs(const BigInt& a);
 	friend BigInt PowerMod(const BigInt&, long, const BigInt&);
-	friend BigInt MulMod (const BigInt&, const BigInt&, const BigInt&);
+	friend BigInt MulMod (const BigInt&, const BigInt&);
 	friend void PrintDecNum(ostream&, BigInt);
 
 	void RShOne();
