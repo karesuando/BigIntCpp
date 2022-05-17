@@ -82,15 +82,15 @@ public:
 	const unsigned short *GetData() const;
 
 private:
+	template <int T>
+	friend ostream& operator<< (ostream& OutStream, const BigInt<T>& Int);
 	friend istream& operator>> (istream& InStream, BigInt& Int);
-	friend ostream& operator<< (ostream& OutStream, const BigInt& Int);
 	friend string BigIntToString(BigInt Int);
 	friend bool XGCD(BigInt a,BigInt b,BigInt& x0,BigInt& y0);
 	friend BigInt HexStringToBigInt(const char Str[]);
 	friend BigInt Abs(const BigInt& a);
 	friend BigInt PowerMod(const BigInt&, long, const BigInt&);
 	friend BigInt MulMod (const BigInt&, const BigInt&);
-	friend void PrintDecNum(ostream&, BigInt);
 
 	void RShOne();
 	void RSh(int NumBits);
@@ -104,6 +104,9 @@ private:
 	void XOr(const BigInt&);	
 	void IOr(const BigInt&);
 	void And(const BigInt&);
+	void PrintHexNum(ostream&) const;
+	void PrintOctNum(ostream&) const;
+	void PrintDecNum(ostream&) const;
 	unsigned int NumDigits() const;
 	int Compare(const BigInt& Int) const;
 	int UCompare(const BigInt& Int) const;

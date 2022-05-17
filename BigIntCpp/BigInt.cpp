@@ -500,17 +500,7 @@ void BigInt<Size>::RSh(int Bits)
 {
 	const int Rem    = Bits & 0xf;
 	const int Digits = Bits >> 4;
-	//int i = Size - 1;
-	//if (IsNeg())
-	//{
-	//	while (i > 0 && m_Digits[i] == -1)
-	//		i--;
-	//}
-	//else {
-	//	while (i > 0 && m_Digits[i] == 0)
-	//		i--;
-	//}
-	//const int Start = i;
+	
 	if (Digits > 0)
 	{
 		if (Digits < Size)
@@ -641,23 +631,18 @@ void BigInt<Size>::Abs()
 template <int Size>
 string BigInt<Size>::ToString() const
 {
-	int i,Count;
-	BigInt<Size> Rem,Quot;
+	string Number;
 	BigInt<Size> Int = *this;
+	BigInt<Size> Rem, Quot;
 	const BigInt<Size> Ten = 10;
-	char *Number,Buffer[IOSTREAM_BUFSZ];
 
-	Count   = IOSTREAM_BUFSZ - 1;
-	Number  = Buffer + IOSTREAM_BUFSZ - 1;
-	*Number = '\0';
 	do {
 		Int.UDiv(Ten, Quot, Rem);
-		i         = Rem.GetShort();
-		*--Number = Symbol[i];
-		Int       = Quot;
-	}
-	while (Int > 0 && --Count >= 0);
-	return string(Number);
+		int i = Rem.GetShort();
+		Number = Symbol[i] + Number;
+		Int = Quot;
+	} while (Int > 0);
+	return Number;
 }
 
 // void PrintDecNum(ostream& OutStream, const BigInt& Int)
@@ -665,55 +650,46 @@ string BigInt<Size>::ToString() const
 // Prints a BigInt as a decimal number. 
 
 template <int Size>
-void PrintDecNum (
-	ostream& OutStream,
-	BigInt<Size> Int)
+void BigInt<Size>::PrintDecNum(ostream& OutStream) const
 {
-	int i,Count;
-	BigInt<Size> Rem,Quot;
+	string Number;
+	BigInt<Size> Rem,Quot,Int;
 	const BigInt<Size> Ten = 10;
-	char *Number,Buffer[IOSTREAM_BUFSZ];
 
-	Count   = IOSTREAM_BUFSZ - 1;
-	Number  = Buffer + IOSTREAM_BUFSZ - 1;
-	*Number = '\0';
+	Int = *this;
 	do {
 		Int.UDiv(Ten, Quot, Rem);
-		i         = Rem.GetLong();
-		*--Number = Symbol[i];
-		Int       = Quot;
+		int i  = Rem.GetShort();
+		Number = Symbol[i] + Number;
+		Int    = Quot;
 	}
-	while (! Int.IsZero() && --Count >= 0);
+	while (Int > 0);
 	OutStream << Number;
 }
 
 template <int Size>
-void PrintOctNum(
-	ostream& OutStream,
-	BigInt<Size> Int)
+void BigInt<Size>::PrintOctNum(ostream& OutStream) const
 {
 	string Number;
+	BigInt<Size> Int = *this;
+
 	do {
-		int i = Int.m_Digits[0] & 0x7;
-		Number = Number + Symbol[i];
+		int i  = m_Digits[0] & 0x7;
+		Number = Symbol[i] + Number;
 		Int >>= 3;
 	} while (Int > 0);
 	OutStream << Number;
 }
 
-// void PrintHexNum(const BigInt& Int)
-//
-// Prints a BigInt as a hexadecimal number.
-
 template <int Size>
-static void PrintHexNum (
-	ostream& OutStream,
-	const BigInt<Size>& Int)
+void BigInt<Size>::PrintHexNum(ostream& OutStream) const
 {
 	string Number;
+	BigInt<Size> Int = *this;
+
 	do {
-		int i = Int.m_Digits[0] & 0xf;
-		Number = Number + Symbol[i];
+		int i = m_Digits[0] & 0xf;
+		Number = Symbol[i] + Number;
 		Int >>= 4;
 	} while (Int > 0);
 	OutStream << Number;
@@ -1104,17 +1080,21 @@ ostream& operator<< (
 	const BigInt<Size>& Int)
 {
 	if (Int.IsNeg())
-		OutStream << '-' << Abs(Int);
+	{
+		BigInt<Size> AbsInt = Int;
+		AbsInt.TwosComplement();
+		OutStream << '-' << AbsInt;
+	}
 	else {
 		long Flags;
 
 		Flags = OutStream.flags();
 		if (Flags & ios::hex)
-			PrintHexNum(OutStream, Int);
+			Int.PrintHexNum(OutStream);
 		else if (Flags & ios::oct)
-			PrintOctNum(OutStream, Int);
+			Int.PrintOctNum(OutStream);
 		else
-			PrintDecNum(OutStream, Int);
+			Int.PrintDecNum(OutStream);
 	}
 	return OutStream;
 }

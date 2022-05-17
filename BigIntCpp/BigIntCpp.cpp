@@ -103,9 +103,9 @@ int main()
 	if (Encrypt("Why the hell doesn't this work?", CipherTxt))
 	{
 		string PlainText;
-
+		BigInt<BUFFER_SIZE> tmp = GCD(PrimeQ, PrimeP);
 		if (Decrypt(CipherTxt, PlainText))
-			cout << RSAModulus;
+			cout << RSAModulus * (RSAModulus + 1234578) << endl;
 	}
     std::cout << "Hello World!\n";
 }
