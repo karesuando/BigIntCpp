@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define NUMBITS_USHORT  16
-#define IOSTREAM_BUFSZ 50000
+#define IOSTREAM_BUFSZ 10000
 
 static const char Symbol[] = "0123456789ABCDEF";
 
@@ -1107,7 +1107,7 @@ istream& operator>> (
 	char Buffer[IOSTREAM_BUFSZ];
 
 	InStream.getline(Buffer, sizeof(Buffer));
-	const int CharCount = InStream.gcount();
+	const streamsize CharCount = InStream.gcount();
 
 	if (CharCount > 0)
 	{

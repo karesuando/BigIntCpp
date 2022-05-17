@@ -34,7 +34,8 @@ int* CreateCharPosArray(
 	return Position;
 }
 
-string BigIntToString(BigInt<BUFFER_SIZE> Int)
+template <int Size>
+string BigIntToString(BigInt<Size> Int)
 {
 	string String = "";
 	unsigned short i;
@@ -67,6 +68,7 @@ bool Encrypt(
 		return true;
 	}
 }
+
 
 BigInt<BUFFER_SIZE> StringToBigInt(const char String[])
 {
@@ -103,9 +105,9 @@ int main()
 	if (Encrypt("Why the hell doesn't this work?", CipherTxt))
 	{
 		string PlainText;
-		BigInt<BUFFER_SIZE> tmp = GCD(PrimeQ, PrimeP);
+	
 		if (Decrypt(CipherTxt, PlainText))
-			cout << RSAModulus * (RSAModulus + 1234578) << endl;
+			cout << PlainText << endl;
 	}
     std::cout << "Hello World!\n";
 }

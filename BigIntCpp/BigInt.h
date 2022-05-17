@@ -84,8 +84,10 @@ public:
 private:
 	template <int T>
 	friend ostream& operator<< (ostream& OutStream, const BigInt<T>& Int);
-	friend istream& operator>> (istream& InStream, BigInt& Int);
-	friend string BigIntToString(BigInt Int);
+	template <int T>
+	friend istream& operator>> (istream& InStream, BigInt<T>& Int);
+	template <int T>
+	friend string BigIntToString(BigInt<T> Int);
 	friend bool XGCD(BigInt a,BigInt b,BigInt& x0,BigInt& y0);
 	friend BigInt HexStringToBigInt(const char Str[]);
 	friend BigInt Abs(const BigInt& a);
