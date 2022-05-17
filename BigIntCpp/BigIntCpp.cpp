@@ -105,7 +105,7 @@ int main()
 		string PlainText;
 
 		if (Decrypt(CipherTxt, PlainText))
-			cout << PlainText;
+			cout << RSAModulus;
 	}
     std::cout << "Hello World!\n";
 }

@@ -687,6 +687,20 @@ void PrintDecNum (
 	OutStream << Number;
 }
 
+template <int Size>
+void PrintOctNum(
+	ostream& OutStream,
+	BigInt<Size> Int)
+{
+	string Number;
+	do {
+		int i = Int.m_Digits[0] & 0x7;
+		Number = Number + Symbol[i];
+		Int >>= 3;
+	} while (Int > 0);
+	OutStream << Number;
+}
+
 // void PrintHexNum(const BigInt& Int)
 //
 // Prints a BigInt as a hexadecimal number.
@@ -696,32 +710,13 @@ static void PrintHexNum (
 	ostream& OutStream,
 	const BigInt<Size>& Int)
 {
-	int i,j;
-	unsigned short Value;
-	char Number[5] = {0};
-	const unsigned short* Digit = Int.GetData();
-
-	j = Size - 1;
-	while (Digit[j] == 0 && j > 0)
-		j--;
-	i     = 4;
-	Value = Digit[j--];
+	string Number;
 	do {
-		Number[--i] = Symbol[Value & 0xf];
-		Value     >>= 4;
-	}
-	while (Value > 0);
-	cout << (Number + i);
-	while (j >= 0)
-	{
-		Value = Digit[j--];
-		for (i = 3; i >= 0; i--)
-		{
-			Number[i] = Symbol[Value & 0xf];
-			Value   >>= 4;
-		}
-		cout << Number;
-	}
+		int i = Int.m_Digits[0] & 0xf;
+		Number = Number + Symbol[i];
+		Int >>= 4;
+	} while (Int > 0);
+	OutStream << Number;
 }
 
 template <int Size>
