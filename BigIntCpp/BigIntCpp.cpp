@@ -102,7 +102,7 @@ int main()
 {
 	string CipherTxt;
 
-	if (Encrypt("They are crucial to growing many of our favorite and healthiest", CipherTxt))
+	if (Encrypt("They are crucial to growing many of our favorite and healthiest foods.", CipherTxt))
 	{
 		string PlainText;
 		

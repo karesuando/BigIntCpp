@@ -830,7 +830,7 @@ BigInt<Size> HexStringToBigInt(const char String[])
 	Shift   = 0;
 	String += StrLen - 1;
 	unsigned short *Digit = Number.m_Digits;
-	for (i = 0; i < StrLen; i++)
+	for (i = StrLen; i > 0; i--)
 	{
 		Value = GetValue(*String--, 16);
 		if (Value == -1)
@@ -926,7 +926,7 @@ BigInt<Size> BigInt<Size>::PowerMod (
 		Res  = 1;
 		Base = *this;
 		Exponent = e;
-		while (Exp > 0)
+		while (Exponent > 0)
 		{
 			if (Exponent & 1)
 				Res = Res.MulMod(Base, n);
