@@ -105,9 +105,9 @@ int main()
 	if (Encrypt("Why the hell doesn't this work?", CipherTxt))
 	{
 		string PlainText;
-	
+		
 		if (Decrypt(CipherTxt, PlainText))
-			cout << PlainText << endl;
+			cout << RSAModulus << endl;
 	}
     std::cout << "Hello World!\n";
 }

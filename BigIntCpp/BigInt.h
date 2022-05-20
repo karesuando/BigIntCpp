@@ -78,7 +78,7 @@ public:
 	void Abs();
 	unsigned short GetShort() const;
 	int IsOdd() const;
-	unsigned int BitCount(int Start = Size - 1) const;
+	unsigned int BitCount() const;
 	const unsigned short *GetData() const;
 
 private:
@@ -88,15 +88,13 @@ private:
 	friend istream& operator>> (istream& InStream, BigInt<T>& Int);
 	template <int T>
 	friend string BigIntToString(BigInt<T> Int);
-	friend bool XGCD(BigInt a,BigInt b,BigInt& x0,BigInt& y0);
 	friend BigInt HexStringToBigInt(const char Str[]);
 	friend BigInt Abs(const BigInt& a);
-	friend BigInt PowerMod(const BigInt&, long, const BigInt&);
-	friend BigInt MulMod (const BigInt&, const BigInt&);
 
-	void RShOne();
-	void RSh(int NumBits);
-	void LSh(int NumBits);	
+	void RightShift1();
+	void LeftShift1();
+	void RightShift(int NumBits);
+	void LeftShift(int NumBits);	
 	void TwosComplement();
 	void Add(long Int);
 	void Sub(long Int);
@@ -108,7 +106,6 @@ private:
 	void And(const BigInt&);
 	void PrintHexNum(ostream&) const;
 	void PrintOctNum(ostream&) const;
-	void PrintDecNum(ostream&) const;
 	unsigned int NumDigits() const;
 	int Compare(const BigInt& Int) const;
 	int UCompare(const BigInt& Int) const;
@@ -156,9 +153,8 @@ inline BigInt<Size> operator* (long Int, const BigInt<Size>& Num)
 template <int Size>
 inline BigInt<Size> operator/ (long Int, const BigInt<Size>& Den)
 {
-	BigInt Num;
+	BigInt Num = abs(Int);
 
-	Num = Int;
 	return Num / Den;
 }
 
@@ -332,13 +328,13 @@ inline void BigInt<Size>::operator ^= (const BigInt<Size>& Int)
 template <int Size>
 inline void BigInt<Size>::operator>>= (int Bits)
 {
-	RSh(Bits);
+	RightShift(Bits);
 }
 
 template <int Size>
 inline void BigInt<Size>::operator<<= (int Bits)
 {
-	LSh(Bits);
+	LeftShift(Bits);
 }
 
 template <int Size>
@@ -390,11 +386,11 @@ inline void BigInt<Size>::SetBit(int BitPos)
 }
 
 template <int Size>
-inline unsigned int BigInt<Size>::BitCount(int Start) const
+inline unsigned int BigInt<Size>::BitCount() const
 {
 	register int i;
 
-	for (i = Start; i > 0; i--)
+	for (i = Size - 1; i > 0; i--)
 		if (m_Digits[i])
 			return ::BitCount(m_Digits[i]) + (i << 4);
 	return ::BitCount(m_Digits[0]);
@@ -425,9 +421,9 @@ inline BigInt<Size> BigInt<Size>::operator<< (int Bits) const
 {
 	BigInt<Size> Tmp = *this;
 	if (Bits < 0)
-		Tmp.RSh(-Bits);
+		Tmp.RightShift(-Bits);
 	else
-		Tmp.LSh(Bits);
+		Tmp.LeftShift(Bits);
 	return Tmp;	
 }
 
@@ -436,9 +432,9 @@ inline BigInt<Size> BigInt<Size>::operator>> (int Bits) const
 {
 	BigInt<Size> Tmp = *this;
 	if (Bits < 0)
-		Tmp.LSh(-Bits);
+		Tmp.LeftShift(-Bits);
 	else
-		Tmp.RSh(Bits);
+		Tmp.RightShift(Bits);
 	return Tmp;
 }
 

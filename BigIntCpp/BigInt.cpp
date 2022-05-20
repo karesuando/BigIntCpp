@@ -184,25 +184,55 @@ void BigInt<Size>::Sub(long Int)
 template <int Size>
 void BigInt<Size>::Mul(long Int)
 {
-	int i;
-	unsigned long Prod,Carry;
-	register unsigned short *ThisData = m_Digits;
-	const int NumDig                  = NumDigits();
-
-	Carry = 0;
-	for (i = NumDig; i > 0; i--) 
-	{
-		Prod        = Carry + (unsigned long)(*ThisData) * Int;
-		Carry       = Prod >> NUMBITS_USHORT;
-		*ThisData++ = (unsigned short)(Prod);
+	if (Int < 0) {
+		if (IsNeg()) { 
+			TwosComplement();
+			Mul(-Int);
+		}
+		else {
+			Mul(-Int);
+			TwosComplement();
+		}
 	}
-	if (Carry > 0 && NumDig < Size)
-		*ThisData = (unsigned short)(Carry);
+	else if (Int == 0) {
+		memset(m_Digits, 0, sizeof(m_Digits));
+	}
+	else if (IsNeg()) {
+		TwosComplement();
+		Mul(Int);
+		TwosComplement();
+	}
+	else {
+		int i;
+		unsigned long Prod, Carry;
+		register unsigned short* ThisData = m_Digits;
+		const int NumDig = NumDigits();
+
+		Carry = 0;
+		for (i = NumDig; i > 0; i--)
+		{
+			Prod = Carry + (unsigned long)(*ThisData) * Int;
+			Carry = Prod >> NUMBITS_USHORT;
+			*ThisData++ = (unsigned short)(Prod);
+		}
+		if (Carry > 0 && NumDig < Size)
+			*ThisData = (unsigned short)(Carry);
+	}
 }
 
 template <int Size>
 BigInt<Size> BigInt<Size>::operator* (const BigInt<Size>& Int) const
 {
+	// Make sure the operands are both positve before multiplying them.
+	if (IsNeg()) {
+		if (Int.IsNeg())
+			return (-*this) * (-Int);
+		else
+			return -((-*this) * Int);
+	}
+	else if (Int.IsNeg()) {
+		return -(*this * (-Int));
+	}
 	int i,j,Shift;
 	BigInt<Size> Tmp,Sum;
 	unsigned short ThisDigit;
@@ -255,15 +285,15 @@ void BigInt<Size>::UDiv (
 	{
 		if (Tmp.UCompare(Rem) == 1)
 		{
-			Tmp.RShOne();
+			Tmp.RightShift1();
 			Shift--;
 		}	
 		Rem.Sub(Tmp);
 		Quot.SetBit(Shift);
-		RemLen = Rem.BitCount(RemLen >> 4);
+		RemLen = Rem.BitCount();
 		Bits   = Shift + DenomLen - RemLen;
 		Shift -= Bits;
-		Tmp.RSh(Bits);
+		Tmp.RightShift(Bits);
 	}
 }
 
@@ -496,28 +526,11 @@ void BigInt<Size>::operator *= (long Int)
 // Right shifts the bits in a BigInt.
 
 template <int Size>
-void BigInt<Size>::RSh(int Bits)
+void BigInt<Size>::RightShift(int Bits)
 {
 	const int Rem    = Bits & 0xf;
 	const int Digits = Bits >> 4;
 	
-	if (Digits > 0)
-	{
-		if (Digits < Size)
-		{
-			int i,j;
-			size_t Count;
-
-			Count = sizeof(unsigned short)*(Size - Digits);
-			memmove(m_Digits, m_Digits + Digits, Count);
-			for (i = Size - 1 - Digits,j = Digits; j > 0; i++,j--)
-				m_Digits[i] = 0;
-		}
-		else {
-			memset(m_Digits, 0, sizeof(m_Digits));
-			return;
-		}
-	}
 	if (Rem > 0)
 	{
 		int i;
@@ -529,14 +542,31 @@ void BigInt<Size>::RSh(int Bits)
 		for (i = Size; i > 0; i--)
 		{
 			Value    = *Digit;
-			*Digit-- = Carry | (Value >> Rem);
+			*Digit-- = (unsigned short)(Carry | (Value >> Rem));
 			Carry    = Value << BitCount;
+		}
+	}
+	if (Digits > 0)
+	{
+		if (Digits < Size)
+		{
+			int i, j;
+			size_t Count;
+
+			Count = sizeof(unsigned short) * (Size - Digits);
+			memmove(m_Digits, m_Digits + Digits, Count);
+			for (i = Size - 1 - Digits, j = Digits; j > 0; i++, j--)
+				m_Digits[i] = 0;
+		}
+		else {
+			memset(m_Digits, 0, sizeof(m_Digits));
+			return;
 		}
 	}
 }
 
 template <int Size>
-void BigInt<Size>::RShOne()
+void BigInt<Size>::RightShift1()
 {
 	unsigned short Carry,Value;
 	register unsigned short *Digit = m_Digits + Size - 1;
@@ -553,39 +583,55 @@ void BigInt<Size>::RShOne()
 	}
 }
 
+template <int Size>
+void BigInt<Size>::LeftShift1()
+{
+	unsigned short Carry, Value;
+	register unsigned short* Digit = m_Digits;
+
+	Carry = 0;
+	for (int i = Size; i > 0; i--, Digit++)
+	{
+		Value = *Digit;
+		if (Carry)
+			*Digit = 0x0001 | (Value << 1);
+		else
+			*Digit = Value << 1;
+		Carry = Value & 0x8000;
+	}
+}
+
 // void BigInt<Size>::LSh(int NumBits)
 //
 // Left shifts the bits in a BigInt.
 
 template <int Size>
-void BigInt<Size>::LSh(int Bits)
+void BigInt<Size>::LeftShift(int Bits)
 {
 	const int Rem   = Bits & 0xf;
 	const int Zeros = Bits >> 4;
 
 	if (Rem > 0)
 	{
-		int i;
 		unsigned short Carry;
-		unsigned long Value;
+		unsigned short Value;
 		register unsigned short *Digit = m_Digits;
 
 		Carry = 0;
-		for (i = Size; i > 0; i--)
+		for (int i = Size; i > 0; i--)
 		{
-			Value    = (unsigned long)(*Digit) << Rem;
-			*Digit++ = (unsigned short)(Value | Carry);
-			Carry    = (unsigned long)(Value >> NUMBITS_USHORT);
+			Value    = *Digit;
+			*Digit++ = (unsigned short)((Value << Rem)| Carry);
+			Carry    = Value >> (NUMBITS_USHORT - Rem);
 		}
 	}
 	if (Zeros > 0)
 	{
-		int i;
 		size_t Count;
 
 		Count = sizeof(unsigned short)*(Size - Zeros);
 		memmove(m_Digits + Zeros, m_Digits, Count);
-		for (i = 0; i < Zeros; i++)
+		for (int i = 0; i < Zeros; i++)
 			m_Digits[i] = 0;
 	}
 }
@@ -643,28 +689,6 @@ string BigInt<Size>::ToString() const
 		Int = Quot;
 	} while (Int > 0);
 	return Number;
-}
-
-// void PrintDecNum(ostream& OutStream, const BigInt& Int)
-//
-// Prints a BigInt as a decimal number. 
-
-template <int Size>
-void BigInt<Size>::PrintDecNum(ostream& OutStream) const
-{
-	string Number;
-	BigInt<Size> Rem,Quot,Int;
-	const BigInt<Size> Ten = 10;
-
-	Int = *this;
-	do {
-		Int.UDiv(Ten, Quot, Rem);
-		int i  = Rem.GetShort();
-		Number = Symbol[i] + Number;
-		Int    = Quot;
-	}
-	while (Int > 0);
-	OutStream << Number;
 }
 
 template <int Size>
@@ -874,10 +898,10 @@ BigInt<Size> BigInt<Size>::MulMod (
 		{
             z += y;
             if (z < y || z >= m) 
-				z -=m;
+				z -= m;
         }
-        c.RSh(1);
-        y.LSh(1);
+		c.RightShift1();
+        y.LeftShift1();
         if (y.IsNeg() || y >= m) 
 			y -= m;
     }
@@ -930,7 +954,6 @@ BigInt<Size> BigInt<Size>::PowerMod (
 	else if (n.IsZero())
 		throw DivisionByZero();
 	else {
-		int i;
 		int BitCount;
 		unsigned short Value;
 		BigInt<Size> Res,Base,Quot;
@@ -942,15 +965,17 @@ BigInt<Size> BigInt<Size>::PowerMod (
 		while (BitCount > 0)
 		{
 			Value = *Digit++;
-			for (i = __min(BitCount, NUMBITS_USHORT); i > 0; i--)
+			for (int i = __min(BitCount, NUMBITS_USHORT); i > 0; i--)
 			{
 				if (Value & 1)
 				{
-					Res *= Base;
-					Res.UDiv(n, Quot, Res);
+					//Res = Res * Base;
+					//Res.UDiv(n, Quot, Res);
+					Res = Res.MulMod(Base, n);
 				}
-				Base *= Base;
-				Base.UDiv(n, Quot, Base);
+				/*Base = Base * Base;
+				Base.UDiv(n, Quot, Base);*/
+				Base = Base.MulMod(Base, n);
 				Value >>= 1;
 			}
 			BitCount -= NUMBITS_USHORT;
@@ -1094,7 +1119,7 @@ ostream& operator<< (
 		else if (Flags & ios::oct)
 			Int.PrintOctNum(OutStream);
 		else
-			Int.PrintDecNum(OutStream);
+			OutStream << Int.ToString();
 	}
 	return OutStream;
 }
@@ -1152,7 +1177,7 @@ istream& operator>> (
 
 			while (i < CharCount && Value != -1)
 			{
-				Int.LSh(Shift);
+				Int.LeftShift(Shift);
 				Int.m_Digits[0] |= Value;
 				c     = Buffer[++i];
 				Value = GetValue(c, Radix);
