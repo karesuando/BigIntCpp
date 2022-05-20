@@ -798,7 +798,7 @@ BigInt<Size> Power (
 		int BitCount;
 		unsigned short Value;
 		BigInt<Size> Res,Base;
-		const unsigned short *Digit = e.GetData();
+		const unsigned short *Digit = e.m_Digits;
 
 		Res      = 1;
 		Base     = a;
@@ -829,13 +829,13 @@ BigInt<Size> HexStringToBigInt(const char String[])
 
 	Shift   = 0;
 	String += StrLen - 1;
-	unsigned short *Digit = (unsigned short* )Number.GetData();
+	unsigned short *Digit = Number.m_Digits;
 	for (i = 0; i < StrLen; i++)
 	{
 		Value = GetValue(*String--, 16);
 		if (Value == -1)
 			break;
-		if (Shift > 28)
+		if (Shift > 12)
 		{
 			Digit++;
 			Shift = 0;
@@ -853,7 +853,7 @@ void BigIntToHexString (
 	size_t BuffSize)
 {
 	unsigned short Value;
-	const unsigned short *FirstDigit = Int.GetData();
+	const unsigned short *FirstDigit = Int.m_Digits;
 	const unsigned short *Digit      = FirstDigit + Size - 1;
 
 	while (*Digit == 0 && Digit > FirstDigit)
@@ -920,27 +920,20 @@ BigInt<Size> BigInt<Size>::PowerMod (
 	else if (e < 0)
 		return InvMod(PowerMod(-e, n), n);
 	else {
-		long Exp;
+		long Exponent;
 		BigInt<Size> Base,Res,Quot;
 
 		Res  = 1;
 		Base = *this;
-		Exp  = abs(e);
+		Exponent = e;
 		while (Exp > 0)
 		{
-			if (Exp & 1)
-			{
-				Res *= Base;
-				Res.UDiv(n, Quot, Res);
-			}
-			Base *= Base;
-			Base.UDiv(n, Quot, Base);
-			Exp >>= 1;
+			if (Exponent & 1)
+				Res = Res.MulMod(Base, n);
+			Base = Base.MulMod(Base, n);
+			Exponent >>= 1;
 		}
-		if (e < 0)
-			return InvMod(Res, n);
-		else
-			return Res;
+		return Res;
 	}
 }
 
@@ -961,20 +954,14 @@ BigInt<Size> BigInt<Size>::PowerMod (
 		Res      = 1;
 		Base     = *this;
 		BitCount = e.BitCount();
-		const unsigned short *Digit = e.GetData();
+		const unsigned short* Digit = e.m_Digits;
 		while (BitCount > 0)
 		{
 			Value = *Digit++;
 			for (int i = __min(BitCount, NUMBITS_USHORT); i > 0; i--)
 			{
 				if (Value & 1)
-				{
-					//Res = Res * Base;
-					//Res.UDiv(n, Quot, Res);
 					Res = Res.MulMod(Base, n);
-				}
-				/*Base = Base * Base;
-				Base.UDiv(n, Quot, Base);*/
 				Base = Base.MulMod(Base, n);
 				Value >>= 1;
 			}
@@ -1003,19 +990,15 @@ BigInt<Size> PowerMod (
 		Res      = 1;
 		Base     = a;
 		BitCount = e.BitCount();
-		const unsigned short *Digit = e.GetData();
+		const unsigned short *Digit = e.m_Digits;
 		while (BitCount > 0)
 		{
 			Value = *Digit++;
 			for (i = __min(BitCount, NUMBITS_USHORT); i > 0; i--)
 			{
 				if (Value & 1)
-				{
-					Res *= Base;
-					Res.UDiv(n, Quot, Res);
-				}
-				Base *= Base;
-				Base.UDiv(n, Quot, Base);
+					Res = Res.MulMod(Base, n);
+				Base = Base.MulMod(Base, n);
 				Value >>= 1;
 			}
 			BitCount -= NUMBITS_USHORT;

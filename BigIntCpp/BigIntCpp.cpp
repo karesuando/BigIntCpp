@@ -102,7 +102,7 @@ int main()
 {
 	string CipherTxt;
 
-	if (Encrypt("Why the hell doesn't this work?", CipherTxt))
+	if (Encrypt("They are crucial to growing many of our favorite and healthiest", CipherTxt))
 	{
 		string PlainText;
 		

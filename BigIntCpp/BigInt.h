@@ -79,7 +79,6 @@ public:
 	unsigned short GetShort() const;
 	int IsOdd() const;
 	unsigned int BitCount() const;
-	const unsigned short *GetData() const;
 
 private:
 	template <int T>
@@ -88,8 +87,10 @@ private:
 	friend istream& operator>> (istream& InStream, BigInt<T>& Int);
 	template <int T>
 	friend string BigIntToString(BigInt<T> Int);
-	friend BigInt HexStringToBigInt(const char Str[]);
-	friend BigInt Abs(const BigInt& a);
+	template <int T>
+	friend BigInt<T> HexStringToBigInt(const char Str[]);
+	template <int T>
+	friend BigInt<T> Abs(const BigInt<T>& a);
 
 	void RightShift1();
 	void LeftShift1();
@@ -338,12 +339,6 @@ inline void BigInt<Size>::operator<<= (int Bits)
 }
 
 template <int Size>
-inline const unsigned short *BigInt<Size>::GetData() const
-{
-	return m_Digits;
-}
-
-template <int Size>
 inline int BigInt<Size>::IsZero() const
 {
 	const unsigned short *Digit = m_Digits;
@@ -495,8 +490,6 @@ template <int Size>
 BigInt<Size> Power(const BigInt<Size>& a, long e);
 template <int Size>
 BigInt<Size> Power(const BigInt<Size>& a, const BigInt<Size>& e);
-template <int Size>
-BigInt<Size> PowerMod(const BigInt<Size>& a, long e, const BigInt<Size>& n);
 template <int Size>
 BigInt<Size> PowerMod(const BigInt<Size>& a,const BigInt<Size>& e,const BigInt<Size>& n);
 template <int Size>
