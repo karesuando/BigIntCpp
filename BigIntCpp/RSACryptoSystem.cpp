@@ -1,14 +1,36 @@
 template<int Size>
-RSACryptoSystem<Size>::RSACryptoSystem() :
-	Symbols("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789. @$+{[|\\\"]}=?)(/&%#!'^-_<>:,;"),
-	Radix(Symbols.length())
+RSACryptoSystem<Size>::RSACryptoSystem(
+	const string& MessageChars,
+	const string& PrimePHex,
+	const string& PrimeQHex,
+	const string& EncExpStr) :
+	Symbols(MessageChars),
+	Radix(Symbols.length()),
+	PrimeP(HexStringToBigInt<Size>(PrimePHex.c_str())),
+    PrimeQ(HexStringToBigInt<Size>(PrimeQHex.c_str())),
+    RSAModulus(PrimeP * PrimeQ),
+    Phi((PrimeP - 1) * (PrimeQ - 1))
 {
 	InitCharPosition(Symbols);
-	PrimeP = HexStringToBigInt<Size>("154594281F272B8915820973631620D6376E6D3F02CA68B4C3C16AF11BEB7113");
-	PrimeQ = HexStringToBigInt<Size>("7B7F7CF1842463909414C5AD27FA005DF683A10AC5E7309992494CBE52E90D097");
-	RSAModulus = PrimeP * PrimeQ;
-	Phi = (PrimeP - 1) * (PrimeQ - 1);
-	EncExp = StringToBigInt("Qwerty?");
+	EncExp = StringToBigInt(EncExpStr);
+	DecExp = InvMod(EncExp, Phi);
+}
+
+template<int Size>
+RSACryptoSystem<Size>::RSACryptoSystem(
+	const string& MsgChars,
+	const BigInt<Size>& PrimeP_,
+	const BigInt<Size>& PrimeQ_,
+	const BigInt<Size>& EncExp_) :
+	Symbols(MsgChars),
+	Radix(Symbols.length()),
+	PrimeP(PrimeP_),
+	PrimeQ(PrimeQ_),
+	RSAModulus(PrimeP_* PrimeQ_),
+	Phi((PrimeP_ - 1)* (PrimeQ_ - 1))
+{
+	InitCharPosition(Symbols);
+	EncExp = EncExp_;
 	DecExp = InvMod(EncExp, Phi);
 }
 
