@@ -9,7 +9,7 @@ int main()
 	string CipherTxt;
 	RSACryptoSystem<BUFFER_SIZE> RSA;
 
-	if (RSA.Encrypt("They are crucial to growing many of our favorite and healthiest foods.", CipherTxt))
+	if (RSA.Encrypt("Once that report is published, a Parliamentary Committee will then be able", CipherTxt))
 	{
 		string PlainText;
 		

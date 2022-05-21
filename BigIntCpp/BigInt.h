@@ -86,9 +86,7 @@ private:
 	template <int T>
 	friend istream& operator>> (istream& InStream, BigInt<T>& Int);
 	template <int T>
-	friend string BigIntToString(BigInt<T> Int);
-	template <int T>
-	friend BigInt<T> HexStringToBigInt(const char Str[]);
+	friend BigInt<T> HexStringToBigInt(const string&);
 	template <int T>
 	friend BigInt<T> Abs(const BigInt<T>& a);
 
@@ -487,19 +485,15 @@ BigInt<Size> Abs(const BigInt<Size>& a);
 template <int Size>
 BigInt<Size> GCD(BigInt<Size> A, BigInt<Size> B);
 template <int Size>
-BigInt<Size> Power(const BigInt<Size>& a, long e);
-template <int Size>
 BigInt<Size> Power(const BigInt<Size>& a, const BigInt<Size>& e);
 template <int Size>
 BigInt<Size> PowerMod(const BigInt<Size>& a,const BigInt<Size>& e,const BigInt<Size>& n);
-template <int Size>
-bool XGCD(BigInt<Size> a, BigInt<Size> b, BigInt<Size>& x0, BigInt<Size>& y0);
 template <int Size>
 bool InvMod(const BigInt<Size>& r,const BigInt<Size>& p,BigInt<Size>& m);
 template <int Size>
 BigInt<Size> InvMod(const BigInt<Size>& r,const BigInt<Size>& p);
 template <int Size>
-BigInt<Size> HexStringToBigInt(const char Str[]);
+BigInt<Size> HexStringToBigInt(const string&);
 template <int Size>
 void BigIntToHexString(BigInt<Size> Int, char Buffer[],size_t BufferSize);
 template <int Size>

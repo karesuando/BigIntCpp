@@ -820,19 +820,20 @@ BigInt<Size> Power (
 }
 
 template <int Size>
-BigInt<Size> HexStringToBigInt(const char String[])
+BigInt<Size> HexStringToBigInt(const string& String)
 {
 	int i,Shift;
 	unsigned long Value;
 	BigInt<Size> Number;
-	const int StrLen = strlen(String);
+	const int StrLen = String.length();
 
 	Shift   = 0;
-	String += StrLen - 1;
 	unsigned short *Digit = Number.m_Digits;
+	const char* string = String.c_str() + StrLen - 1;
+
 	for (i = StrLen; i > 0; i--)
 	{
-		Value = GetValue(*String--, 16);
+		Value = GetValue(*string--, 16);
 		if (Value == -1)
 			break;
 		if (Shift > 12)

@@ -6,8 +6,8 @@ RSACryptoSystem<Size>::RSACryptoSystem(
 	const string& EncExpStr) :
 	Symbols(MessageChars),
 	Radix(Symbols.length()),
-	PrimeP(HexStringToBigInt<Size>(PrimePHex.c_str())),
-    PrimeQ(HexStringToBigInt<Size>(PrimeQHex.c_str())),
+	PrimeP(HexStringToBigInt<Size>(PrimePHex)),
+    PrimeQ(HexStringToBigInt<Size>(PrimeQHex)),
     RSAModulus(PrimeP * PrimeQ),
     Phi((PrimeP - 1) * (PrimeQ - 1))
 {
@@ -19,15 +19,15 @@ RSACryptoSystem<Size>::RSACryptoSystem(
 template<int Size>
 RSACryptoSystem<Size>::RSACryptoSystem(
 	const string& MsgChars,
-	const BigInt<Size>& PrimeP_,
-	const BigInt<Size>& PrimeQ_,
+	const BigInt<Size>& P,
+	const BigInt<Size>& Q,
 	const BigInt<Size>& EncExp_) :
 	Symbols(MsgChars),
 	Radix(Symbols.length()),
-	PrimeP(PrimeP_),
-	PrimeQ(PrimeQ_),
-	RSAModulus(PrimeP_* PrimeQ_),
-	Phi((PrimeP_ - 1)* (PrimeQ_ - 1))
+	PrimeP(P),
+	PrimeQ(Q),
+	RSAModulus(P * Q),
+	Phi((P - 1)* (Q - 1))
 {
 	InitCharPosition(Symbols);
 	EncExp = EncExp_;
