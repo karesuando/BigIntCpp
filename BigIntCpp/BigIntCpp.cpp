@@ -1,113 +1,20 @@
 // BigIntCpp.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
-#include <iostream>
-#include "BigInt.h"
 #define BUFFER_SIZE 50
-
-BigInt<BUFFER_SIZE> StringToBigInt(const char String[]);
-int* CreateCharPosArray(const char Symbols[]);
-
-const char Symbols[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789. @$+{[|\\\"]}=?)(/&%#!'^-_<>:,;";
-const long Radix = strlen(Symbols);   // Talbas
-const int* CharPos = CreateCharPosArray(Symbols);
-const BigInt<BUFFER_SIZE> PrimeP = HexStringToBigInt<BUFFER_SIZE>("154594281F272B8915820973631620D6376E6D3F02CA68B4C3C16AF11BEB7113");
-const BigInt<BUFFER_SIZE> PrimeQ = HexStringToBigInt<BUFFER_SIZE>("7B7F7CF1842463909414C5AD27FA005DF683A10AC5E7309992494CBE52E90D097");
-const BigInt<BUFFER_SIZE> RSAModulus = PrimeP * PrimeQ;
-const BigInt<BUFFER_SIZE> Phi = (PrimeP - 1) * (PrimeQ - 1);
-const BigInt<BUFFER_SIZE> EncExp = StringToBigInt("Qwerty?");
-const BigInt<BUFFER_SIZE> DecExp = InvMod(EncExp, Phi);
-
-int* CreateCharPosArray(
-	const char Symbols[])
-{
-	long i;
-	int ch;
-	const long Radix = strlen(Symbols);
-	static int Position[256] = { 0 };
-
-	for (i = 0; i < Radix; i++)
-	{
-		ch = Symbols[i];
-		Position[ch] = i;
-	}
-	return Position;
-}
-
-template <int Size>
-string BigIntToString(BigInt<Size> Int)
-{
-	string String = "";
-	unsigned short i;
-	BigInt<BUFFER_SIZE> Quot, Rem;
-	const BigInt<BUFFER_SIZE> Base = Radix;
-
-	do {
-		Int.UDiv(Base, Quot, Rem);
-		Int = Quot;
-		i = Rem.GetUShort();
-		String = Symbols[i] + String;
-	} while (Int > 0);
-	return String;
-}
-
-bool Encrypt(
-	const char PlainText[],
-	string& CipherText)
-{
-	BigInt<BUFFER_SIZE> PlainTextValue;
-
-	PlainTextValue = StringToBigInt(PlainText);
-	if (PlainTextValue >= RSAModulus)
-		return false;
-	else {
-		BigInt<BUFFER_SIZE> CipherTextValue;
-
-		CipherTextValue = PlainTextValue.PowerMod(EncExp, RSAModulus);
-		CipherText = BigIntToString(CipherTextValue);
-		return true;
-	}
-}
-
-
-BigInt<BUFFER_SIZE> StringToBigInt(const char String[])
-{
-	unsigned char c;
-	BigInt<BUFFER_SIZE> Value;
-
-	for (c = *String++; c != '\0'; c = *String++)
-		Value = Radix * Value + CharPos[c];
-	return Value;
-}
-
-bool Decrypt(
-	const string& CipherText,
-	string& PlainText)
-{
-	BigInt<BUFFER_SIZE> CipherTextValue;
-	
-	CipherTextValue = StringToBigInt(CipherText.c_str());
-	if (CipherTextValue >= RSAModulus)
-		return false;
-	else {
-		BigInt<BUFFER_SIZE> PlainTextValue;
-
-		PlainTextValue = CipherTextValue.PowerMod(DecExp, RSAModulus);
-		PlainText = BigIntToString(PlainTextValue);
-		return true;
-	}
-}
+#include <iostream>
+#include "RSACryptoSystem.h"
 
 int main()
 {
 	string CipherTxt;
+	RSACryptoSystem<BUFFER_SIZE> RSA;
 
-	if (Encrypt("They are crucial to growing many of our favorite and healthiest foods.", CipherTxt))
+	if (RSA.Encrypt("They are crucial to growing many of our favorite and healthiest foods.", CipherTxt))
 	{
 		string PlainText;
 		
-		if (Decrypt(CipherTxt, PlainText))
-			cout << RSAModulus << endl;
+		if (RSA.Decrypt(CipherTxt, PlainText))
+			cout << PlainText << endl;
 	}
     std::cout << "Hello World!\n";
 }

@@ -23,5 +23,8 @@
     <ClInclude Include="BigInt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RSACryptoSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
